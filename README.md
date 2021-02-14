@@ -1,6 +1,6 @@
 # keykeeper
 
-Maintain AWS api gateway JWT authorizer compatible secrets, with public keys in s3 compatible bucket.
+Maintain AWS api gateway JWT authorizer compatible secrets, with public keys in s3 http-visible bucket.
 
 Usage:
 
