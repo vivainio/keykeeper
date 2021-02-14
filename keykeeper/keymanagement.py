@@ -31,14 +31,14 @@ def create_pair():
 def create_jwks(keypair: KeyPair):
     parsed = json.loads(keypair.public)
     return {
-        "keys": parsed
+        "keys": [parsed]
     }
 
 
 def create_openid_config(domain_name: str):
     return {
-        "issuer": f"http://{domain_name}/",
-        "jwks_uri": f"https://{domain_name}/.well_known/jwks.json"
+        "issuer": f"{domain_name}",
+        "jwks_uri": f"{domain_name}/.well-known/jwks.json"
     }
 
 

@@ -53,7 +53,7 @@ Resources:
       Environment:
         Variables:
           PublicKeysBucket: !Ref PublicKeysBucket
-          IssuerDomain: !GetAtt PublicKeysBucket.DomainName
+          IssuerDomain: !Sub "https://${IssuerNamePrefix}-${AWS::Region}.s3-${AWS::Region}.amazonaws.com"
           SecretKeyParameterStorePath: !Ref SecretKeyParameterStorePath
 
 Outputs:
