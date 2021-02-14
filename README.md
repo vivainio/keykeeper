@@ -2,6 +2,8 @@
 
 Maintain AWS api gateway JWT authorizer compatible secrets, with public keys in s3 http-visible bucket.
 
+See [this post](https://www.jeremydaly.com/verifying-self-signed-jwt-tokens-with-aws-http-apis/) on what JWT authorizers in API Gateway do.
+
 Usage:
 
 ```
