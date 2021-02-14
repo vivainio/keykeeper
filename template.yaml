@@ -13,8 +13,6 @@ Parameters:
     Type: String
     Default: "keykeeper/1"
 
-
-
 Resources:
 
   # allow everyone to read the items in the bucket
@@ -68,14 +66,14 @@ Outputs:
   CreateIssuerFunction:
     Description: "Lambda to initiazile a new issuer with single key"
     Value: !Ref CreateIssuerFunction
-  CreateIssuerFunctionIamRole:
-    Description: "Implicit IAM Role created for CreateIssuer function"
-    Value: !GetAtt CreateIssuerFunctionRole.Arn
   KeyKeeperIssuerBucket:
     Description: "The issuer bucket with public keys"
     Value: !Ref PublicKeysBucket
   BucketUrl:
-    Description: "Url of the bucket"
+    Description: "Issuer url (you should point your Authorizer at this location"
     Value: !Sub
       - "https://${domain}"
       - domain: !GetAtt PublicKeysBucket.DomainName
+  SecretKeyParameterStorePath:
+    Description: "Location of the secret key in parameter store"
+    Value: !Ref SecretKeyParameterStorePath
