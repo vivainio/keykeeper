@@ -71,3 +71,37 @@ $ aws ssm get-parameter --name /keykeeper/1 --with-decryption
 ```
 
 Note that the parameter path was /keykeeper/1. You can use another path by passing a different parameter to sam deploy.
+
+## keykeeper-issue
+
+There is a partner python command line application to issue keys using the secret provided in parameter store.
+
+Usage:
+
+```
+$ pip install keykeeper-issue
+
+$ keykeeper-issue -h
+
+usage: keykeeper-issue [-h] [--ssm SSM] [--claim CLAIM] [--aud AUD]
+                       [--iss ISS] [--sub SUB]
+
+optional arguments:
+  -h, --help     show this help message and exit
+  --ssm SSM      SSM parameter path to read secret key from
+  --claim CLAIM  Add custom claim, in format --claim shoesize=43
+  --aud AUD      Reserved claim 'aud'
+  --iss ISS      Reserved claim 'iss'
+  --sub SUB      Reserved claim 'sub'
+
+
+$ PS C:\p> keykeeper-issue --aud myaudience
+eyJhbGciOiJSUzI1NiIsImtpZCI6IjIwMjEtMDItMTRUMTNfMzdfMTRfMSJ9.eyJhdWQiOiJteWF1ZGllbmNlIiwiZXhwIjoiMTYxMzQwNzA5NSIsImlhdC
+I6IjE2MTMzMjA2OTUifQ.GZrhyEwvtNsE8oTbMcRnWcwxe5gg1RLyxbmQYWfYJ710xuO2jmSPn09yI4NlU5JgMlPsn8wPPWKeBnmQ3sVaRduK4i2C32OOOJ
+rfJWOfM0zeh8njKPQ5M2s8C4fWO0pxxtAyvLpFkoJT8Odi3L1PO9jiaYQuXf_ZU7RInToX5sTALovbAs4mRXIHRDvlUO8BXUejTYi3ZV3jLTcMaSQ_UO_Ev
+rBXRV48mGHKc9yeiRdW5ljZgHFFf7NZgT2eNNRLVDbSiCgQG8U_8wo1qjO4xceNZfZhmFE1CDaisS-S0DQlo0OeYRYTqHyvyKkhZP1np-c1e5X1L05AToMw
+_FYytg
+
+```
+
+By default it creates a token that is valid for one day.

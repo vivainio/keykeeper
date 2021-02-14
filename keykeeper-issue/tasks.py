@@ -18,9 +18,11 @@ def do_black(args):
     c("py -m black keykeeperissue")
 
 
-def do_test(args):
-    os.chdir("test")
-    c("pytest")
+def do_publish(args):
+    if os.path.isdir("dist"):
+        shutil.rmtree("dist")
+    c("python setup.py sdist")
+    c("twine upload dist/*")
 
 
 def default():
