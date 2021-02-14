@@ -1,0 +1,11 @@
+{
+  "profile": "dev",
+  "templates": {
+    "default": {
+      "name": "keykeeper",
+      "path": "template.yaml",
+      "capabilities": null,
+      "parameters": null
+    }
+  }
+}
