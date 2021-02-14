@@ -41,7 +41,7 @@ Then, when invoke the function by
 $ aws lambda invoke --function-name keykeeper-CreateIssuerFunction-19NP9SN29F419 output.json
 ```
 
-... you can observe that it has created tho following files in s3 under public bucket https://keykeeper-issuer-eu-west-1.s3.amazonaws.com
+... you can observe that it has created the following files in s3 under public bucket https://keykeeper-issuer-eu-west-1.s3.amazonaws.com
 
 - .well-known/openid-configuration
 - .well-known/keys.json
