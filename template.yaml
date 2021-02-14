@@ -12,10 +12,12 @@ Parameters:
   SecretKeyParameterStorePath:
     Type: String
     Default: "keykeeper/1"
-
+  IssuerNamePrefix:
+    Type: String
+    Default: "keykeeper-jwt-issuer"
 Resources:
 
-  # allow everyone to read the items in the bucket
+  # Allow everyone to read the items in the bucket. Public keys do not need to be secret
   PublicKeysBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -31,13 +33,8 @@ Resources:
   PublicKeysBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "keykeeper-issuer-${AWS::Region}"
+      BucketName: !Sub "${IssuerNamePrefix}-${AWS::Region}"
       AccessControl: PublicRead
-      MetricsConfigurations:
-        - Id: EntireBucket
-      WebsiteConfiguration:
-        IndexDocument: index.html
-        ErrorDocument: error.html
 
   CreateIssuerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction

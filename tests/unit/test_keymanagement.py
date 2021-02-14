@@ -1,4 +1,4 @@
-from keykeeper import keymanagement
+from ...keykeeper import keymanagement
 
 
 def test_create_jwks():

@@ -41,12 +41,16 @@ Then, when invoke the function by
 $ aws lambda invoke --function-name keykeeper-CreateIssuerFunction-19NP9SN29F419 output.json
 ```
 
-... you can observe that it has created in s3 https://keykeeper-issuer-eu-west-1.s3.amazonaws.com
+... you can observe that it has created in s3 https://keykeeper-issuer-eu-west-1.s3.amazonaws.com:
 
-.well-known/openid-configuration
-.well-known/keys.json
+```
+$ aws s3 ls keykeeper-issuer-eu-west-1/.well-known/
+2021-02-14 15:26:29        420 jwks.json
+2021-02-14 15:26:29        154 openid-configuration
+```
 
-Now, you can point Api Gateway HTTP authorization JWT authorizer to the "issuer" at https://keykeeper-issuer-eu-west-1.s3.amazonaws.com
+
+Now, you can point Api Gateway HTTP authorization JWT authorizer to the "issuer" at https://keykeeper-issuer-eu-west-1.s3.amazonaws.com.
 
 To create signed requests against this api, you need to read (--with-decrypt) the secret from parameter store and sign the JWT token with this secret:
 

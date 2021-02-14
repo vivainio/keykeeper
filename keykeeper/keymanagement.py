@@ -17,7 +17,7 @@ SEQ = 0
 def get_some_id():
     global SEQ
     SEQ += 1
-    return datetime.today().isoformat() + "_%s" % SEQ
+    return datetime.today().isoformat().split(".")[0].replace(":", "_") + "_%s" % SEQ
 
 
 def create_pair():
