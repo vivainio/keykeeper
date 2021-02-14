@@ -43,8 +43,8 @@ $ aws lambda invoke --function-name keykeeper-CreateIssuerFunction-19NP9SN29F419
 
 ... you can observe that it has created in s3 https://keykeeper-issuer-eu-west-1.s3.amazonaws.com
 
-.well-known/openid-configuration
-.well-known/keys.json
+- .well-known/openid-configuration
+- .well-known/keys.json
 
 Now, you can point Api Gateway HTTP authorization JWT authorizer to the "issuer" at https://keykeeper-issuer-eu-west-1.s3.amazonaws.com
 
