@@ -107,3 +107,20 @@ _FYytg
 ```
 
 By default it creates a token that is valid for one day.
+
+## keykeeper-demo
+
+Also provided is a demo SAM Api application that uses JWT authorizer, in keykeeper-demo/ directory.
+
+You can deploy it with "sam deploy".
+
+If the demo application has been successfully deployed *with correct Issuer address*, you should be 
+able to run 
+
+```
+$ python make_jwt_authorized_request.py https://p7mb5b2hud.execute-api.eu-west-1.amazonaws.com/Prod/hello
+```
+
+(of course your API url will vary). This python script calls keykeeper-issue to create a token, and 
+then performs the request with that token.
+
