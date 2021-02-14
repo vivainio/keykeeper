@@ -5,6 +5,15 @@ Description: >
 
   Sample SAM Template for keykeeper-demo
 
+Parameters:
+  KeyKeeperIssuerAddress:
+    Type: String
+    Default:  https://keykeeper-jwt-issuer-eu-west-1.s3-eu-west-1.amazonaws.com
+
+  StageName:
+    Type: String
+    Default: Prod
+
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
@@ -19,10 +28,32 @@ Resources:
       Runtime: python3.7
       Events:
         HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
+            ApiId: !Ref HttpApi
             Path: /hello
-            Method: get
+            Method: GET
+            PayloadFormatVersion: "1.0"
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref StageName
+      Auth:
+          Authorizers:
+            NativeJwtAuthorizer:
+              IdentitySource: $request.header.Authorization
+              JwtConfiguration:
+                audience:
+                  - all
+                issuer: !Ref KeyKeeperIssuerAddress
+          DefaultAuthorizer: NativeJwtAuthorizer
+
+      AccessLogSettings:
+        DestinationArn: !GetAtt AuthorizerAccessLogs.Arn
+        Format: $context.requestId $context.authorizer.status $context.path $context.authorizer.error
+
+  AuthorizerAccessLogs:
+    Type: AWS::Logs::LogGroup
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -30,7 +61,7 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   HelloWorldApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello"
   HelloWorldFunction:
     Description: "Hello World Lambda Function ARN"
     Value: !GetAtt HelloWorldFunction.Arn
