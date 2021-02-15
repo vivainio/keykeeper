@@ -76,7 +76,7 @@ Note that the parameter path was /keykeeper/1. You can use another path by passi
 
 ## keykeeper-issue
 
-There is a partner python command line application to issue keys using the secret provided in parameter store.
+There is a partner python command line application to issue *JWT tokens* using the secret key provided in parameter store.
 
 Usage:
 
