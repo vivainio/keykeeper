@@ -136,3 +136,4 @@ token = os.popen(
 ).read()
 auth = "Authorization: " + token
 subprocess.check_call(["curl", "-H", auth, url])
+```
