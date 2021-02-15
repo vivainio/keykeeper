@@ -38,13 +38,13 @@ Description         The issuer bucket with public keys
 Value               keykeeper-issuer-eu-west-1
 ```
 
-Then, when invoke the function by
+Then, when you invoke the function by:
 
 ```
 $ aws lambda invoke --function-name keykeeper-CreateIssuerFunction-19NP9SN29F419 output.json
 ```
 
-... you can observe that it has created in s3 https://keykeeper-issuer-eu-west-1.s3.amazonaws.com:
+... you can observe that it has created two files in S3 under https://keykeeper-issuer-eu-west-1.s3.amazonaws.com:
 
 ```
 $ aws s3 ls keykeeper-issuer-eu-west-1/.well-known/
