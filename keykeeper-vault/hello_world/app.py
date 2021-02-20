@@ -1,6 +1,7 @@
 import json
 import os
 from functools import lru_cache
+from typing import List
 
 import boto3
 
@@ -9,7 +10,7 @@ import boto3
 
 @lru_cache()
 def s3client():
-    return boto3.client("s3", region_name="eu-west-1",  endpoint_url='https://s3.eu-west-1.amazonaws.com')
+    return boto3.client("s3", region_name="eu-west-1", endpoint_url='https://s3.eu-west-1.amazonaws.com')
 
 
 def create_get_url(bucket_name: str, path: str):
@@ -36,6 +37,26 @@ def create_post_url(bucket_name: str, path: str):
                                          ExpiresIn=3600
                                          )
     return response
+
+
+def bucket_name():
+    return os.environ["VaultBucketName"]
+
+
+def handle_read(keys: List[str]):
+    bucket = bucket_name()
+    return {key: create_get_url(bucket_name(), key) for key in keys}
+
+
+def handle_write(keys: List[str]):
+    bucket = bucket_name()
+    return {key: create_post_url(bucket_name(), key) for key in keys}
+
+
+SYNTAX_ERROR = {
+        "statusCode": 400,
+        "body": 'POST request should be like {"op": "read" | "write", keys: ["path1.txt", "2/path2.txt"]}'
+    }
 
 
 def lambda_handler(event, context):
@@ -70,10 +91,20 @@ def lambda_handler(event, context):
     bucket_name = os.environ["VaultBucketName"]
     post_url = create_post_url(bucket_name, "foo.txt")
     get_url = create_get_url(bucket_name, "foo.txt")
+    parsed_body = json.loads(event["body"])
+    op = parsed_body.get("op")
+    keys = parsed_body.get("keys")
+
+    if not op or not keys:
+        return SYNTAX_ERROR
+
+    if op == "read":
+        res = handle_read(keys)
+    elif op == "write":
+        res = handle_write(keys)
+    else:
+        return SYNTAX_ERROR
     return {
         "statusCode": 200,
-        "body": json.dumps({
-            "get_url": get_url,
-            "post_url": post_url
-        }),
+        "body": json.dumps(res),
     }

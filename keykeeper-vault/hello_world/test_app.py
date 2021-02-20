@@ -1,3 +1,4 @@
+import json
 import os
 
 from .app import create_get_url, lambda_handler
@@ -9,4 +10,11 @@ def test_create_get_url():
 
 def test_lambda_handler():
     os.environ["VaultBucketName"] = "keykeeper-vault-1"
-    print(lambda_handler({}, {} ))
+    postbody_json = {
+        "op": "read",
+        "keys": ["foo.txt", "2/bar.txt"]
+    }
+    event = {
+        "body": json.dumps(postbody_json)
+    }
+    print(lambda_handler(event, None))
