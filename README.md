@@ -125,3 +125,15 @@ $ python make_jwt_authorized_request.py https://p7mb5b2hud.execute-api.eu-west-1
 (of course your API url will vary). This python script calls keykeeper-issue to create a token, and 
 then performs the request with that token.
 
+The content is pretty much:
+
+```python
+# pass the url to invoke
+url = sys.argv[1]
+# note that "iss" (issuer) needs to have exact match to the "issuer" bucket configured in keykeeper
+token = os.popen(
+    "keykeeper-issue --sub ville --aud all --iss https://keykeeper-jwt-issuer-eu-west-1.s3-eu-west-1.amazonaws.com"
+).read()
+auth = "Authorization: " + token
+subprocess.check_call(["curl", "-H", auth, url])
+```
