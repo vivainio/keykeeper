@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  keykeeper-demo
+
+  Sample SAM Template for keykeeper-demo
+
+Parameters:
+  KeyKeeperIssuerAddress:
+    Type: String
+    Default:  https://keykeeper-jwt-issuer-eu-west-1.s3-eu-west-1.amazonaws.com
+
+  VaultBucketName:
+    Type: String
+    Description: Bucket name for the "vault", i.e. bucket to serve
+    Default: keykeeper-vault-1
+  StageName:
+    Type: String
+    Default: Prod
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          VaultBucketName: !Ref VaultBucketName
+
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref VaultBucketName
+
+      Events:
+        HelloWorld:
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /hello
+            Method: GET
+            PayloadFormatVersion: "1.0"
+
+  VaultBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref VaultBucketName
+      AccessControl: Private
+
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref StageName
+      Auth:
+          Authorizers:
+            NativeJwtAuthorizer:
+              IdentitySource: $request.header.Authorization
+              JwtConfiguration:
+                audience:
+                  - all
+                issuer: !Ref KeyKeeperIssuerAddress
+          DefaultAuthorizer: NativeJwtAuthorizer
+
+      AccessLogSettings:
+        DestinationArn: !GetAtt AuthorizerAccessLogs.Arn
+        Format: $context.requestId $context.authorizer.status $context.path $context.authorizer.error
+
+  AuthorizerAccessLogs:
+    Type: AWS::Logs::LogGroup
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello"
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn
