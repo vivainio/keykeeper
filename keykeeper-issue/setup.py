@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='keykeeper-issue',
-      version='1.0.0',
+      version='1.1.0',
       description='Desciption for keykeeperissue here',
       author='Ville M. Vainio',
       author_email='ville.vainio@basware.com',
