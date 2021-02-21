@@ -1,3 +1,4 @@
+import json
 import os
 from dataclasses import dataclass
 from functools import lru_cache
@@ -56,9 +57,15 @@ def create_new_issuer_in_s3():
 
     ssm_path = "/" + env.secret_key_parameter_store_path
     ssm = boto3.client("ssm")
+
+    parameter_body = {
+        "issuer": env.issuer_domain,
+        "key": kp.private
+    }
+
     ssm.put_parameter(
         Name=ssm_path,
-        Value=kp.private,
+        Value=json.dumps(parameter_body),
         Type="SecureString",
         Overwrite=True,
         Description="Secret key for Keykeeper",
