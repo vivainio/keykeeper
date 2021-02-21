@@ -5,6 +5,9 @@ from typing import Optional
 
 from jwcrypto import jwk
 
+JWKS_FILE = ".well-known/jwks.json"
+OPENID_CONFIG_FILE = ".well-known/openid-configuration"
+
 
 @dataclass
 class KeyPair:
@@ -38,7 +41,7 @@ def create_jwks(keypair: KeyPair, old_jwks: Optional[str]):
         old_keys_parsed = json.loads(old_jwks)["keys"]
         # highest kid number = newest key
         if old_keys_parsed:
-            newest_old_key = max(old_keys_parsed, key=lambda k:k["kid"])
+            newest_old_key = max(old_keys_parsed, key=lambda k: k["kid"])
             keys_to_populate.append(newest_old_key)
 
     return {
@@ -53,7 +56,7 @@ def create_openid_config(domain_name: str):
     }
 
 
-def create_issuer(domain_name: str, keypair: KeyPair, old_jwks: str):
+def create_issuer(domain_name: str, keypair: KeyPair, old_jwks: Optional[str]):
     keys = create_jwks(keypair, old_jwks)
-    return [(".well-known/openid-configuration", json.dumps(create_openid_config(domain_name))),
-            (".well-known/jwks.json", json.dumps(keys))]
+    return [(OPENID_CONFIG_FILE, json.dumps(create_openid_config(domain_name))),
+            (JWKS_FILE, json.dumps(keys))]
