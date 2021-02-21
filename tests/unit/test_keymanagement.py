@@ -1,3 +1,6 @@
+import json
+from typing import Optional
+
 from ...keykeeper import keymanagement
 
 
@@ -8,8 +11,29 @@ def test_create_jwks():
     assert jwkks["keys"]
 
 
-def test_issuer():
+def create_and_parse_issuer(old_jwks: Optional[str]):
     kp = keymanagement.create_pair()
-    cont = keymanagement.create_issuer("mydomain.com", kp)
-    print(cont)
+    issuer = keymanagement.create_issuer("mydomain.com", kp, old_jwks)
+    # parse the jwks
+    parsed_jwks = json.loads(issuer[1][1])
+    return parsed_jwks
 
+def test_issuer():
+
+    # 1 should not crash if no old keys exist
+    from_scratch = create_and_parse_issuer(None)
+    assert len(from_scratch["keys"]) == 1
+
+
+    old_jwks = """
+        {"keys": [{"kid": "2021-02-21T18_57_12_1"}, {"kid": "2021-01-21T18_57_12_1"}]} 
+    """
+
+    from_old = create_and_parse_issuer(old_jwks)
+
+    assert len(from_old["keys"]) == 2
+    assert from_old["keys"][1]["kid"] == "2021-02-21T18_57_12_1"
+
+    # once again with the keys we just got
+    once_again = create_and_parse_issuer(json.dumps(from_old))
+    assert len(once_again["keys"]) == 2

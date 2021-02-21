@@ -1,6 +1,7 @@
 import json
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 from jwcrypto import jwk
 
@@ -28,10 +29,20 @@ def create_pair():
     return KeyPair(public_key, secret_key)
 
 
-def create_jwks(keypair: KeyPair):
-    parsed = json.loads(keypair.public)
+def create_jwks(keypair: KeyPair, old_jwks: Optional[str]):
+    new_key_parsed = json.loads(keypair.public)
+
+    keys_to_populate = [new_key_parsed]
+
+    if old_jwks:
+        old_keys_parsed = json.loads(old_jwks)["keys"]
+        # highest kid number = newest key
+        if old_keys_parsed:
+            newest_old_key = max(old_keys_parsed, key=lambda k:k["kid"])
+            keys_to_populate.append(newest_old_key)
+
     return {
-        "keys": [parsed]
+        "keys": keys_to_populate
     }
 
 
@@ -42,7 +53,7 @@ def create_openid_config(domain_name: str):
     }
 
 
-def create_issuer(domain_name: str, keypair: KeyPair):
-    keys = create_jwks(keypair)
+def create_issuer(domain_name: str, keypair: KeyPair, old_jwks: str):
+    keys = create_jwks(keypair, old_jwks)
     return [(".well-known/openid-configuration", json.dumps(create_openid_config(domain_name))),
             (".well-known/jwks.json", json.dumps(keys))]
