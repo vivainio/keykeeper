@@ -12,7 +12,7 @@ Parameters:
   # all the keys beging with this, path is suffixed in path
   SecretKeyParameterStorePath:
     Type: String
-    Default: "keykeeper/1"
+    Default: "keykeeper"
   IssuerNamePrefix:
     Type: String
     Default: "keykeeper-jwt-issuer"

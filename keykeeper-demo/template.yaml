@@ -8,7 +8,8 @@ Description: >
 Parameters:
   KeyKeeperIssuerAddress:
     Type: String
-    Default:  https://keykeeper-jwt-issuer-eu-west-1.s3-eu-west-1.amazonaws.com
+    # this is your address. Also /2 and /3 are available for testing
+    Default:  https://keykeeper-jwt-issuer-eu-west-1.s3-eu-west-1.amazonaws.com/1
 
   StageName:
     Type: String
