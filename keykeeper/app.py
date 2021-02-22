@@ -46,14 +46,14 @@ def fetch_old_jwks(path: str):
     return old_keys["Body"].read()
 
 
-def create_new_issuer_in_s3(path: str):
+def create_new_issuer_in_s3(prefix_path: str):
     kp = keymanagement.create_pair()
     env = get_env()
-    old_keys = fetch_old_jwks(path)
+    old_keys = fetch_old_jwks(prefix_path)
 
-    full_issuer_root = env.issuer_domain + "/" + path
+    full_issuer_root = env.issuer_domain + "/" + prefix_path
 
-    files = keymanagement.create_issuer(env.issuer_domain, path, kp, old_keys)
+    files = keymanagement.create_issuer(env.issuer_domain, prefix_path, kp, old_keys)
 
     for path, cont in files:
         s3client().put_object(
@@ -62,7 +62,7 @@ def create_new_issuer_in_s3(path: str):
             Bucket=env.public_keys_bucket
         )
 
-    ssm_path = "/" + env.secret_key_parameter_store_path + "/" + path
+    ssm_path = "/" + env.secret_key_parameter_store_path + "/" + prefix_path
     ssm = boto3.client("ssm")
 
     parameter_body = {
