@@ -2,6 +2,7 @@ import json
 import os
 from dataclasses import dataclass
 from functools import lru_cache
+from typing import List
 
 import boto3
 import keymanagement
@@ -18,21 +19,24 @@ class EnvConfig:
     issuer_domain: str
     public_keys_bucket: str
     secret_key_parameter_store_path: str
+    list_of_issuer_paths: List[str]
 
 
 @lru_cache()
 def get_env() -> EnvConfig:
     return EnvConfig(os.environ["IssuerDomain"], os.environ["PublicKeysBucket"],
-                     os.environ["SecretKeyParameterStorePath"])
+                     os.environ["SecretKeyParameterStorePath"],
+                     os.environ["ListOfIssuerPaths"].split(",")
+                     )
 
 
-def fetch_old_jwks():
+def fetch_old_jwks(path: str):
     env = get_env()
 
     client = s3client()
     try:
         old_keys = client.get_object(
-            Key=keymanagement.JWKS_FILE,
+            Key=path + "/" + keymanagement.JWKS_FILE,
             Bucket=env.public_keys_bucket
         )
     except client.exceptions.NoSuchKey:
@@ -42,11 +46,14 @@ def fetch_old_jwks():
     return old_keys["Body"].read()
 
 
-def create_new_issuer_in_s3():
+def create_new_issuer_in_s3(path: str):
     kp = keymanagement.create_pair()
     env = get_env()
-    old_keys = fetch_old_jwks()
-    files = keymanagement.create_issuer(env.issuer_domain, kp, old_keys)
+    old_keys = fetch_old_jwks(path)
+
+    full_issuer_root = env.issuer_domain + "/" + path
+
+    files = keymanagement.create_issuer(env.issuer_domain, path, kp, old_keys)
 
     for path, cont in files:
         s3client().put_object(
@@ -55,11 +62,11 @@ def create_new_issuer_in_s3():
             Bucket=env.public_keys_bucket
         )
 
-    ssm_path = "/" + env.secret_key_parameter_store_path
+    ssm_path = "/" + env.secret_key_parameter_store_path + "/" + path
     ssm = boto3.client("ssm")
 
     parameter_body = {
-        "issuer": env.issuer_domain,
+        "issuer": full_issuer_root,
         "key": kp.private
     }
 
@@ -71,14 +78,20 @@ def create_new_issuer_in_s3():
         Description="Secret key for Keykeeper",
     )
     return {
-        "issuer": env.issuer_domain,
+        "issuer": full_issuer_root,
         "key_param": ssm_path
     }
+
+
+def create_all_issuers():
+    env = get_env()
+    all = []
+    for path in env.list_of_issuer_paths:
+        all.append(create_new_issuer_in_s3(path))
+    return all
 
 
 def lambda_handler(event, context):
     """ Lambda handler
     """
-
-    ret = create_new_issuer_in_s3()
-    return ret
+    return create_all_issuers()

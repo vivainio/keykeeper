@@ -9,12 +9,16 @@ Globals:
     Timeout: 30
 
 Parameters:
+  # all the keys beging with this, path is suffixed in path
   SecretKeyParameterStorePath:
     Type: String
     Default: "keykeeper/1"
   IssuerNamePrefix:
     Type: String
     Default: "keykeeper-jwt-issuer"
+  ListOfIssuerPaths:
+    Type: CommaDelimitedList
+    Default: 0,1,2
 Resources:
 
   # Allow everyone to read the items in the bucket. Public keys do not need to be secret
@@ -48,13 +52,14 @@ Resources:
         - Statement:
             - Effect: Allow
               Action: ssm:PutParameter
-              Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${SecretKeyParameterStorePath}"
+              Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${SecretKeyParameterStorePath}/*"
 
       Environment:
         Variables:
           PublicKeysBucket: !Ref PublicKeysBucket
           IssuerDomain: !Sub "https://${IssuerNamePrefix}-${AWS::Region}.s3-${AWS::Region}.amazonaws.com"
           SecretKeyParameterStorePath: !Ref SecretKeyParameterStorePath
+          ListOfIssuerPaths: !Join [",", !Ref ListOfIssuerPaths]
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

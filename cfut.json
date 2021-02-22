@@ -2,7 +2,14 @@
   "ecr": null,
   "profile": "default",
   "templates": {
-    "default": {
+    "kk": {
+      "name": "keykeepert",
+      "path": "template.yaml",
+      "capabilities": null,
+      "parameters": null
+    },
+
+    "vault": {
       "name": "keykeeper-vault",
       "path": "keykeeper-vault/template.yaml",
       "capabilities": null,

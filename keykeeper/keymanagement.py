@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from jwcrypto import jwk
 
@@ -49,14 +49,18 @@ def create_jwks(keypair: KeyPair, old_jwks: Optional[str]):
     }
 
 
-def create_openid_config(domain_name: str):
+def create_openid_config(full_domain_name: str):
     return {
-        "issuer": f"{domain_name}",
-        "jwks_uri": f"{domain_name}/.well-known/jwks.json"
+        "issuer": f"{full_domain_name}",
+        "jwks_uri": f"{full_domain_name}/.well-known/jwks.json"
     }
 
 
-def create_issuer(domain_name: str, keypair: KeyPair, old_jwks: Optional[str]):
+def domain_and_path(domain: str, path: str):
+    return domain + "/" + path
+
+
+def create_issuer(domain_name: str, path: str, keypair: KeyPair, old_jwks: Optional[str]):
     keys = create_jwks(keypair, old_jwks)
-    return [(OPENID_CONFIG_FILE, json.dumps(create_openid_config(domain_name))),
-            (JWKS_FILE, json.dumps(keys))]
+    return [(path + "/" + OPENID_CONFIG_FILE, json.dumps(create_openid_config(domain_and_path(domain_name,path)))),
+            (path + "/" + JWKS_FILE, json.dumps(keys))]
